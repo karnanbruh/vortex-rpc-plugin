@@ -1,0 +1,33 @@
+name: Build VORTEX RPC
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "vortex-rpc-plugin.zip"
+      - ".github/workflows/build.yml"
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Download source
+        uses: actions/checkout@v4
+
+      - name: Extract source
+        shell: pwsh
+        run: |
+          Expand-Archive -Path vortex-rpc-plugin.zip -DestinationPath extracted
+
+      - name: Configure project
+        run: cmake -S extracted/vortex-rpc-plugin -B build -A Win32
+
+      - name: Compile plugin
+        run: cmake --build build --config Release
+
+      - name: Upload build output
+        uses: actions/upload-artifact@v4
+        with:
+          name: VORTEX-RPC
+          path: build/Release/HistoricRPC.asi
