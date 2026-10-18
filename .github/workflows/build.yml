@@ -15,19 +15,10 @@ jobs:
       - name: Download source
         uses: actions/checkout@v4
 
-      - name: Extract source
+      - - name: Fix CMake runtime setting
         shell: pwsh
         run: |
-          Expand-Archive -Path vortex-rpc-plugin.zip -DestinationPath extracted
-
-      - name: Configure project
-        run: cmake -S extracted/vortex-rpc-plugin -B build -A Win32
-
-      - name: Compile plugin
-        run: cmake --build build --config Release
-
-      - name: Upload build output
-        uses: actions/upload-artifact@v4
-        with:
-          name: VORTEX-RPC
-          path: build/Release/HistoricRPC.asi
+          $file = "extracted/vortex-rpc-plugin/CMakeLists.txt"
+          $content = Get-Content $file -Raw
+          $content = $content.Replace("MultiThreadedDLLDebug", "MultiThreadedDebugDLL")
+          Set-Content -Path $file -Value $content
